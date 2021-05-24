@@ -1,3 +1,5 @@
+import java.io.File
+
 class Map(strMap: String) {
     private val map: Array<Array<Boolean>>
     val h: Int
@@ -25,6 +27,12 @@ class Map(strMap: String) {
 
     fun getGrid(): Array<Array<Boolean>> {
         return map
+    }
+
+    companion object {
+        fun fromFile(fileName: String): Map {
+            return Map(File(fileName).readLines().drop(4).joinToString("\n"))
+        }
     }
 }
 

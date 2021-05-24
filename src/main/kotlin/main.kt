@@ -11,7 +11,7 @@ fun main() {
         .........................
     """.trimIndent()
 
-    val test2 = SingleBotCase(Map(map2), Point(24, 0), Point(0, 7), 0.1, emptyList())
+    val test2 = SingleBotCase(Map(map2), Point(24, 0), Point(0, 7), emptyList())
 
     val res = DijkstraWithTimeDimension().findPath(test2)
 

@@ -50,7 +50,7 @@ class DijkstraWithTimeDimension: PathFindingAlgo {
     }
 
     private fun getNeighbours(point: TimePoint, case: SingleBotCase): List<TimePoint> {
-        return point.getNeighbours().filter { case.isCorrect(it) }
+        return point.getNeighbours().filter { case.isCorrectTransition(point, it) }
     }
 
     private fun restorePath(point: TimePoint, prevs: HashMap<TimePoint, TimePoint>): List<TimePoint> {

@@ -1,26 +1,40 @@
+import java.io.File
 import java.lang.IllegalStateException
 
 data class SingleBotCase(
     val map: Map,
     val startPoint: Point,
     val endPoint: Point,
-    val rad: Double,
     val obstacles: List<Obstacle>
 ) {
-    fun isCorrect(point: TimePoint): Boolean {
-        if (!map.isFree(point.getPoint())) {
+    companion object {
+        fun fromFile(mapFilePath: String, obsFilePath: String, startPoint: Point, endPoint: Point): SingleBotCase {
+            val obstacles = File(obsFilePath).readLines().chunked(3).map { obsRepr ->
+                val xs = obsRepr[1].split(" ").map {it.toInt()}
+                val ys = obsRepr[2].split(" ").map { it.toInt() }
+                Obstacle(xs.zip(ys).mapIndexed {i, p -> TimePoint(Point(p.second, p.first), i.toLong()) }, 0.5)
+            }
+            return SingleBotCase(
+                Map.fromFile(mapFilePath),
+                startPoint,
+                endPoint,
+                obstacles
+            )
+        }
+    }
+
+    fun isCorrectTransition(pointFrom: TimePoint, pointTo: TimePoint): Boolean {
+        if (!map.isFree(pointTo.getPoint())) {
             return false
         }
-
         obstacles.forEach { obs ->
-            for (i in obs.points.indices) {
-                val t = obs.points[i]
-                if (t.time == point.time && point.getPoint().dist2(t.getPoint()) <= (rad + obs.R) * (rad + obs.R)) {
-                    return@isCorrect false
-                }
+            val obsPoint1 = obs.points.getOrElse(pointFrom.time.toInt(), {obs.points.last()})
+            val obsPoint2 = obs.points.getOrElse(pointTo.time.toInt(), {obs.points.last()})
+
+            if (pointTo.getPoint() == obsPoint2.getPoint() || obsPoint2.getPoint() == pointFrom.getPoint() && obsPoint1.getPoint() == pointTo.getPoint()) {
+                return@isCorrectTransition false
             }
         }
-
         return true
     }
 
@@ -41,23 +55,37 @@ data class SingleBotCase(
 
     fun emulate(path: List<TimePoint>) {
         path.forEach { pathPoint ->
-            val resLines = getMapLines()
             println("Time: ${pathPoint.time}")
-            resLines[pathPoint.y][pathPoint.x] = if (map.isFree(pathPoint.getPoint())) 2 else 3
-            obstacles.forEachIndexed {io, obs ->
-                obs.points.forEach { op ->
-                    if (op.time == pathPoint.time) {
-                        resLines[op.y][op.x] =
-                            if (op.x == op.y) {
-                                3
-                            } else {
-                                io + 4
-                            }
-                    }
+            println(getMapAtPathPoint(pathPoint))
+            println()
+        }
+    }
+
+    private fun getMapAtPathPoint(pathPoint: TimePoint): String {
+        val resLines = getMapLines()
+
+        resLines[pathPoint.y][pathPoint.x] = if (map.isFree(pathPoint.getPoint())) 2 else 3
+        obstacles.forEachIndexed {io, obs ->
+            obs.points.forEachIndexed { jo, op ->
+                if (op.time == pathPoint.time || op.time < pathPoint.time && jo == obs.points.lastIndex) {
+                    resLines[op.y][op.x] =
+                        if (op.x == op.y) {
+                            3
+                        } else {
+                            io + 4
+                        }
                 }
             }
-            println(getStrFromLines(resLines))
-            println()
+        }
+        return getStrFromLines(resLines)
+    }
+
+    fun emulateToFile(path: List<TimePoint>, filePath: String) {
+        val f = File(filePath)
+        f.writeText("")
+        path.forEach { point ->
+            f.appendText(getMapAtPathPoint(point))
+            f.appendText("\n\n\n");
         }
     }
 
