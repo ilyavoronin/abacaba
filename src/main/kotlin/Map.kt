@@ -1,6 +1,3 @@
-import kotlin.math.abs
-import kotlin.math.sqrt
-
 class Map(strMap: String) {
     private val map: Array<Array<Boolean>>
     val h: Int
@@ -32,8 +29,8 @@ class Map(strMap: String) {
 }
 
 data class Point(val x: Int, val y: Int) {
-    fun dist2(other: Point): Double {
-        return (x - other.x) * (x - other.x) + (y - other.y) * (y - other.y).toDouble()
+    fun dist2(other: Point): Long {
+        return (x - other.x) * (x - other.x).toLong() + (y - other.y) * (y - other.y)
     }
 }
 

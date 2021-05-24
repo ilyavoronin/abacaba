@@ -35,6 +35,7 @@ data class SingleBotCase(
                 resLines[it.y][it.x] = 2
             }
         }
+        println("Full time: ${path.last().time}")
         println(getStrFromLines(resLines))
     }
 
