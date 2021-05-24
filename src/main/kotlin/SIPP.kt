@@ -10,10 +10,13 @@ class SIPP: PathFindingAlgo {
         case.obstacles.forEach { obs ->
             obs.points.forEachIndexed { i, op ->
                 if (i != obs.points.lastIndex) {
-                    val distToNext = 1
-                    timelines[op.y][op.x].add(Pair(op.time, op.time + distToNext))
+                    if (i != 0 && obs.points[i].getPoint() != obs.points[i - 1].getPoint()) {
+                        timelines[op.y][op.x].add(Pair(op.time - 1, op.time + 2))
+                    } else {
+                        timelines[op.y][op.x].add(Pair(op.time, op.time + 2))
+                    }
                 } else {
-                    timelines[op.y][op.x].add(Pair(op.time, Long.MAX_VALUE))
+                    timelines[op.y][op.x].add(Pair(op.time - 1, Long.MAX_VALUE))
                 }
             }
         }
@@ -71,7 +74,7 @@ class SIPP: PathFindingAlgo {
             }
         }
 
-        return finalState?.let { restorePath(it, prevState, timelines) }.also { println(it) }
+        return finalState?.let { restorePath(it, prevState, timelines) }
     }
 
     private fun getNeighbours(ts: TimeState, case: SingleBotCase, timelines: Array<Array<MutableList<Pair<Long, Long>>>>): List<TimeState> {
@@ -130,7 +133,7 @@ class SIPP: PathFindingAlgo {
             val ts = timeStates[i]
             if (i != timeStates.lastIndex) {
                 while (currTime <= timeStates[i + 1].time - 1) {
-                    res.add(TimePoint(ts.state.point, ts.time))
+                    res.add(TimePoint(ts.state.point, currTime))
                     currTime += 1
                 }
             } else {

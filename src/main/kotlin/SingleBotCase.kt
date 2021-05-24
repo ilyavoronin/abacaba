@@ -1,5 +1,6 @@
 import java.io.File
 import java.lang.IllegalStateException
+import java.lang.Math.abs
 
 data class SingleBotCase(
     val map: Map,
@@ -13,6 +14,16 @@ data class SingleBotCase(
                 val xs = obsRepr[1].split(" ").map {it.toInt()}
                 val ys = obsRepr[2].split(" ").map { it.toInt() }
                 Obstacle(xs.zip(ys).mapIndexed {i, p -> TimePoint(Point(p.second, p.first), i.toLong()) }, 0.5)
+            }
+
+            obstacles.forEach { obs ->
+                for (i in obs.points.indices) {
+                    if (i != obs.points.lastIndex) {
+                        if (abs(obs.points[i].x - obs.points[i + 1].x) > 1 || abs(obs.points[i].y -  obs.points[i + 1].y) > 1) {
+                            throw IllegalStateException("Distance between obstacle points > 1: ${obs.points[i]} and ${obs.points[i + 1]}")
+                        }
+                    }
+                }
             }
             return SingleBotCase(
                 Map.fromFile(mapFilePath),
@@ -31,7 +42,7 @@ data class SingleBotCase(
             val obsPoint1 = obs.points.getOrElse(pointFrom.time.toInt(), {obs.points.last()})
             val obsPoint2 = obs.points.getOrElse(pointTo.time.toInt(), {obs.points.last()})
 
-            if (pointTo.getPoint() == obsPoint2.getPoint() || obsPoint2.getPoint() == pointFrom.getPoint() && obsPoint1.getPoint() == pointTo.getPoint()) {
+            if (pointTo.getPoint() == obsPoint2.getPoint() || obsPoint1.getPoint() == pointTo.getPoint()) {
                 return@isCorrectTransition false
             }
         }
@@ -69,7 +80,7 @@ data class SingleBotCase(
             obs.points.forEachIndexed { jo, op ->
                 if (op.time == pathPoint.time || op.time < pathPoint.time && jo == obs.points.lastIndex) {
                     resLines[op.y][op.x] =
-                        if (op.x == op.y) {
+                        if (op.x == pathPoint.x && op.y == pathPoint.y) {
                             3
                         } else {
                             io + 4
@@ -95,8 +106,8 @@ data class SingleBotCase(
                 0 -> "."
                 1 -> "#"
                 2 -> "*"
-                3 -> "!"
-                else -> (intIt - 3).toString()
+                3 -> "*!"
+                else -> "@"
             }
         } + "\n" }
         return res
