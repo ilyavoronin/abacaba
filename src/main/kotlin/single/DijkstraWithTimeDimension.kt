@@ -1,12 +1,14 @@
 package single
 
 import TimePoint
+import Timer
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
 class DijkstraWithTimeDimension: PathFindingAlgo {
-    override fun findPath(case: SingleBotCase): List<TimePoint>? {
+    override fun findPath(case: SingleBotCase): PathFindingAlgo.AlgoRes {
+        Timer.start()
         val open = TreeSet<TimePoint> { a, b ->
             if (a.time == b.time) {
                 if (a.x == b.x) {
@@ -18,6 +20,8 @@ class DijkstraWithTimeDimension: PathFindingAlgo {
                 a.time.compareTo(b.time)
             }
         }
+        var cntOpen = 0
+        var cntClose = 0
         open.add(TimePoint(case.startPoint, 0))
 
         val usedPoints = HashSet<TimePoint>()
@@ -26,10 +30,20 @@ class DijkstraWithTimeDimension: PathFindingAlgo {
         val prevPoints = HashMap<TimePoint, TimePoint>()
 
         var finalPoint: TimePoint? = null
+
+        var minFinishTime = 0L
+        case.obstacles.forEach { obs ->
+            obs.points.forEach { op ->
+                if (op.getPoint() == case.endPoint) {
+                    minFinishTime = op.time + 1
+                }
+            }
+        }
         while (open.isNotEmpty()) {
             val currPoint = open.pollFirst()!!
+            cntClose += 1
 
-            if (currPoint.x == case.endPoint.x && currPoint.y == case.endPoint.y) {
+            if (currPoint.x == case.endPoint.x && currPoint.y == case.endPoint.y && currPoint.time >= minFinishTime) {
                 finalPoint = currPoint
                 break
             }
@@ -37,6 +51,7 @@ class DijkstraWithTimeDimension: PathFindingAlgo {
             val neigs = getNeighbours(currPoint, case)
             neigs.forEach {
                 if (!usedPoints.contains(it)) {
+                    cntOpen += 1
                     usedPoints.add(it)
                     open.add(it)
 
@@ -45,10 +60,10 @@ class DijkstraWithTimeDimension: PathFindingAlgo {
             }
         }
         if (finalPoint == null) {
-            return null
+            return PathFindingAlgo.AlgoRes(null, cntClose, cntOpen, Timer.get())
         }
 
-        return restorePath(finalPoint, prevPoints)
+        return PathFindingAlgo.AlgoRes(restorePath(finalPoint, prevPoints), cntClose, cntOpen, Timer.get())
     }
 
     private fun getNeighbours(point: TimePoint, case: SingleBotCase): List<TimePoint> {

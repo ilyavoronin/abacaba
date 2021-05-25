@@ -16,7 +16,7 @@ class MultipleAgentSolver(
         val res = mutableListOf<List<TimePoint>>()
 
         agents.forEach {
-            val newRes = pathFindingAlgo.findPath(SingleBotCase(case.map, it.first, it.second, currObstacles)) ?: return null
+            val newRes = pathFindingAlgo.findPath(SingleBotCase(case.map, it.first, it.second, currObstacles)).path ?: return null
             res.add(newRes)
             currObstacles.add(Obstacle(newRes, 0.5))
         }

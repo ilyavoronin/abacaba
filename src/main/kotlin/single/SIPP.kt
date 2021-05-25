@@ -4,10 +4,14 @@ import Point
 import TimePoint
 import java.util.*
 import kotlin.collections.HashMap
+import Timer
 
 class SIPP: PathFindingAlgo {
-    override fun findPath(case: SingleBotCase): List<TimePoint>? {
+    override fun findPath(case: SingleBotCase): PathFindingAlgo.AlgoRes {
+        Timer.start()
         val timelines = Array(case.map.h) {Array(case.map.w) { mutableListOf<Pair<Long, Long>>() } }
+        var cntOpen = 0
+        var cntClose = 0
 
         //finding "bad" intervals for configurations
         case.obstacles.forEach { obs ->
@@ -32,7 +36,7 @@ class SIPP: PathFindingAlgo {
 
         if (timelines[case.startPoint.y][case.startPoint.x].isNotEmpty()) {
             if (timelines[case.startPoint.y][case.startPoint.x].first().first != 0L) {
-                return null
+                return PathFindingAlgo.AlgoRes(null, 0, 0, Timer.get())
             }
         }
 
@@ -59,8 +63,9 @@ class SIPP: PathFindingAlgo {
 
         while (open.isNotEmpty()) {
             val v = open.pollFirst()!!
+            cntClose += 1
 
-            if (v.state.point == case.endPoint && timelines[v.state.point.y][v.state.point.x][v.state.intervalIndex].second > 1e16) {
+            if (v.state.point == case.endPoint && timelines[v.state.point.y][v.state.point.x][v.state.intervalIndex].second >= 1e9) {
                 finalState = v
                 break
             }
@@ -70,14 +75,18 @@ class SIPP: PathFindingAlgo {
                 val oldTime = stateToTime.getOrDefault(nb.state, 1e9.toLong())
                 prevState[nb] = v
                 if (oldTime > nb.time) {
-                    open.remove(nb)
+                    if (open.contains(nb)) {
+                        open.remove(nb)
+                    } else {
+                        cntOpen++
+                    }
                     open.add(nb)
                     stateToTime[nb.state] = nb.time
                 }
             }
         }
 
-        return finalState?.let { restorePath(it, prevState, timelines) }
+        return PathFindingAlgo.AlgoRes(finalState?.let { restorePath(it, prevState, timelines) }, cntClose, cntOpen, Timer.get())
     }
 
     private fun getNeighbours(ts: TimeState, case: SingleBotCase, timelines: Array<Array<MutableList<Pair<Long, Long>>>>): List<TimeState> {
