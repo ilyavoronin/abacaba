@@ -1,4 +1,7 @@
 import org.junit.jupiter.api.Test
+import single.DijkstraWithTimeDimension
+import single.SIPP
+import single.SingleBotCase
 import java.lang.IllegalStateException
 import java.lang.Math.abs
 
@@ -28,7 +31,7 @@ class SingleBotTest {
         .........................
         .........................
         """.trimIndent()
-        val test2 = SingleBotCase(Map(map), Point(24, 0), Point(0, 7), emptyList())
+        val test2 = SingleBotCase(CaseMap(map), Point(24, 0), Point(0, 7), emptyList())
 
         val resDij = DijkstraWithTimeDimension().findPath(test2)
         val resSipp = SIPP().findPath(test2)
@@ -41,7 +44,7 @@ class SingleBotTest {
         println("Dijkstra:")
         test2.printWithPath(resDij!!)
 
-        println("SIPP:")
+        println("single.SIPP:")
         test2.printWithPath(resSipp!!)
     }
 
@@ -60,7 +63,7 @@ class SingleBotTest {
 
         val obstacle1 = listOf(TimePoint(23, 0, 0), TimePoint(23, 0, 1), TimePoint(23, 1, 2), TimePoint(23, 2, 3), TimePoint(23, 3, 4), TimePoint(23, 4, 5))
         val obstacle2 = listOf(TimePoint(21, 0, 0), TimePoint(22, 0, 1), TimePoint(23, 0, 2), TimePoint(23, 1, 3))
-        val test2 = SingleBotCase(Map(map), Point(24, 0), Point(0, 7), listOf(Obstacle(obstacle1, 0.1), Obstacle(obstacle2, 0.2)))
+        val test2 = SingleBotCase(CaseMap(map), Point(24, 0), Point(0, 7), listOf(Obstacle(obstacle1, 0.1), Obstacle(obstacle2, 0.2)))
 
         val resDij = DijkstraWithTimeDimension().findPath(test2)!!
         val resSipp = SIPP().findPath(test2)!!
@@ -70,7 +73,7 @@ class SingleBotTest {
         println("Dijkstra:")
         test2.printWithPath(resDij!!)
 
-        println("SIPP:")
+        println("single.SIPP:")
         test2.printWithPath(resSipp!!)
     }
 
@@ -117,7 +120,7 @@ class SingleBotTest {
 
         val obstacle1 = listOf(TimePoint(23, 0, 0), TimePoint(24, 0, 1))
         val obstacle2 = listOf(TimePoint(24, 1, 0), TimePoint(24, 0, 1))
-        val test2 = SingleBotCase(Map(map), Point(24, 0), Point(0, 7), listOf(Obstacle(obstacle1, 0.1), Obstacle(obstacle2, 0.1)))
+        val test2 = SingleBotCase(CaseMap(map), Point(24, 0), Point(0, 7), listOf(Obstacle(obstacle1, 0.1), Obstacle(obstacle2, 0.1)))
 
         val res = DijkstraWithTimeDimension().findPath(test2)
 
@@ -140,7 +143,7 @@ class SingleBotTest {
 
         val obstacle1 = listOf(TimePoint(23, 0, 0), TimePoint(24, 0, 1))
         val obstacle2 = listOf(TimePoint(24, 1, 0), TimePoint(24, 0, 1))
-        val test2 = SingleBotCase(Map(map), Point(24, 0), Point(0, 7), listOf(Obstacle(obstacle1, 0.1), Obstacle(obstacle2, 0.1)))
+        val test2 = SingleBotCase(CaseMap(map), Point(24, 0), Point(0, 7), listOf(Obstacle(obstacle1, 0.1), Obstacle(obstacle2, 0.1)))
 
         val res = SIPP().findPath(test2)
 

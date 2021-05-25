@@ -1,9 +1,15 @@
+package single
+
+import CaseMap
+import Obstacle
+import Point
+import TimePoint
 import java.io.File
 import java.lang.IllegalStateException
 import java.lang.Math.abs
 
 data class SingleBotCase(
-    val map: Map,
+    val map: CaseMap,
     val startPoint: Point,
     val endPoint: Point,
     val obstacles: List<Obstacle>
@@ -13,7 +19,7 @@ data class SingleBotCase(
             val obstacles = File(obsFilePath).readLines().chunked(3).map { obsRepr ->
                 val xs = obsRepr[1].split(" ").map {it.toInt()}
                 val ys = obsRepr[2].split(" ").map { it.toInt() }
-                Obstacle(xs.zip(ys).mapIndexed {i, p -> TimePoint(Point(p.second, p.first), i.toLong()) }, 0.5)
+                Obstacle(xs.zip(ys).mapIndexed { i, p -> TimePoint(Point(p.second, p.first), i.toLong()) }, 0.5)
             }
 
             obstacles.forEach { obs ->
@@ -26,7 +32,7 @@ data class SingleBotCase(
                 }
             }
             return SingleBotCase(
-                Map.fromFile(mapFilePath),
+                CaseMap.fromFile(mapFilePath),
                 startPoint,
                 endPoint,
                 obstacles
@@ -39,10 +45,11 @@ data class SingleBotCase(
             return false
         }
         obstacles.forEach { obs ->
-            val obsPoint1 = obs.points.getOrElse(pointFrom.time.toInt(), {obs.points.last()})
-            val obsPoint2 = obs.points.getOrElse(pointTo.time.toInt(), {obs.points.last()})
+            val obsPoint1 = obs.points.getOrElse(pointFrom.time.toInt()) { obs.points.last() }
+            val obsPoint2 = obs.points.getOrElse(pointTo.time.toInt()) { obs.points.last() }
+            val obsPoint3 = obs.points.getOrElse(pointTo.time.toInt() + 1) {obs.points.last()}
 
-            if (pointTo.getPoint() == obsPoint2.getPoint() || obsPoint1.getPoint() == pointTo.getPoint()) {
+            if (pointTo.getPoint() == obsPoint2.getPoint() || obsPoint1.getPoint() == pointTo.getPoint() || obsPoint3.getPoint() == pointTo.getPoint()) {
                 return@isCorrectTransition false
             }
         }

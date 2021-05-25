@@ -1,3 +1,6 @@
+package single
+
+import TimePoint
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
@@ -23,7 +26,6 @@ class DijkstraWithTimeDimension: PathFindingAlgo {
         val prevPoints = HashMap<TimePoint, TimePoint>()
 
         var finalPoint: TimePoint? = null
-
         while (open.isNotEmpty()) {
             val currPoint = open.pollFirst()!!
 

@@ -1,4 +1,7 @@
-import java.lang.Double.max
+package single
+
+import Point
+import TimePoint
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -33,7 +36,7 @@ class SIPP: PathFindingAlgo {
             }
         }
 
-        val open = TreeSet<TimeState> {a, b ->
+        val open = TreeSet<TimeState> { a, b ->
             if (a.state == b.state) {
                 0
             } else {
@@ -57,7 +60,7 @@ class SIPP: PathFindingAlgo {
         while (open.isNotEmpty()) {
             val v = open.pollFirst()!!
 
-            if (v.state.point == case.endPoint) {
+            if (v.state.point == case.endPoint && timelines[v.state.point.y][v.state.point.x][v.state.intervalIndex].second > 1e16) {
                 finalState = v
                 break
             }
